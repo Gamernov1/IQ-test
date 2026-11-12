@@ -1,0 +1,1864 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evaluación Psicométrica de Inteligencia (CI) — Batería Multidimensional</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    html, body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+      overflow-x: hidden;
+      -webkit-text-size-adjust: 100%;
+    }
+    button, .option-card, label[for] {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .matrix-cell svg, .option-card svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .matrix-cell {
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 0.5rem;
+    }
+    .option-card {
+      transition: all 0.15s ease;
+    }
+    .option-card:hover {
+      border-color: #2563eb;
+      background-color: #eff6ff;
+      transform: translateY(-1px);
+    }
+    .option-card.selected {
+      border-color: #1d4ed8;
+      background-color: #dbeafe;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+    }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #ffffff !important; }
+      .print-break { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Top Navigation / Status Bar -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 no-print">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-9 h-9 rounded-lg bg-slate-900 text-white flex items-center justify-center font-bold text-sm shrink-0">
+          CI
+        </div>
+        <div class="truncate">
+          <h1 class="text-sm sm:text-base font-bold text-slate-900 truncate">Batería Psicométrica de CI</h1>
+          <p class="text-xs text-slate-500 hidden sm:block">Modelo Multidimensional (WAIS-IV &amp; Matrices de Raven)</p>
+        </div>
+      </div>
+
+      <div id="header-status" class="hidden items-center gap-3 sm:gap-4 shrink-0">
+        <div class="text-right hidden sm:block">
+          <div id="header-subtest-name" class="text-xs font-semibold text-slate-700">Subtest</div>
+          <div id="header-progress-text" class="text-xs text-slate-500">Ítem 1 de 10</div>
+        </div>
+        <div id="timer-badge" class="px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 font-mono text-sm font-bold text-slate-800 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500" id="timer-dot"></span>
+          <span id="timer-display">05:00</span>
+        </div>
+      </div>
+    </div>
+    <!-- Progress bar -->
+    <div id="progress-track" class="h-1 bg-slate-100 w-full hidden">
+      <div id="progress-fill" class="h-full bg-blue-600 transition-all duration-300" style="width: 0%"></div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+    <!-- SCREEN 1: WELCOME -->
+    <section id="screen-welcome" class="space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold mb-4">
+          Evaluación Estandarizada Simulada · Escala Wechsler (Media 100, DE 15) · Modo Individual y Grupal
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-3">
+          Test Completo de Cociente Intelectual (CI)
+        </h2>
+        <p class="text-slate-600 text-sm sm:text-base leading-relaxed max-w-3xl">
+          Esta batería evalúa cuatro dominios cognitivos fundamentales inspirados en la estructura de la Escala de Inteligencia de Wechsler para Adultos (<strong>WAIS-IV</strong>) y las <strong>Matrices Progresivas de Raven</strong>. Permite registrar múltiples perfiles para realizar comparativas grupales, obtener el CI Total estimado, Índice de Capacidad General (ICG), percentil poblacional y solucionario detallado.
+        </p>
+
+        <!-- 4 Domains Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="text-xs font-bold uppercase tracking-wider text-blue-600 mb-1">1. ICV · 5 min</div>
+            <div class="font-bold text-slate-900 text-sm mb-1">Comprensión Verbal</div>
+            <p class="text-xs text-slate-600">10 ítems de analogías conceptuales, semejanzas y razonamiento deductivo verbal.</p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="text-xs font-bold uppercase tracking-wider text-indigo-600 mb-1">2. IRP · 8 min</div>
+            <div class="font-bold text-slate-900 text-sm mb-1">Razonamiento Perceptivo</div>
+            <p class="text-xs text-slate-600">12 ítems: 8 matrices visuales 3×3 estilo Raven + secuencias numéricas y balanzas lógicas.</p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="text-xs font-bold uppercase tracking-wider text-amber-600 mb-1">3. IMT · 4 min</div>
+            <div class="font-bold text-slate-900 text-sm mb-1">Memoria de Trabajo</div>
+            <p class="text-xs text-slate-600">8 ítems: retención de dígitos en orden inverso y aritmética mental sin lápiz ni papel.</p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="text-xs font-bold uppercase tracking-wider text-emerald-600 mb-1">4. IVP · 90 seg</div>
+            <div class="font-bold text-slate-900 text-sm mb-1">Velocidad de Procesamiento</div>
+            <p class="text-xs text-slate-600">Tarea cronometrada de codificación símbolo-dígito bajo presión de tiempo y precisión.</p>
+          </div>
+        </div>
+
+        <!-- Participant Profile & Age Settings -->
+        <div class="mt-6 pt-6 border-t border-slate-200 flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
+            <div>
+              <label for="participant-name" class="block text-xs font-semibold text-slate-700 mb-1.5">
+                Nombre o ID del Evaluado
+              </label>
+              <input id="participant-name" type="text" maxlength="40" placeholder="Ej. Ana García o Evaluado #1"
+                class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div>
+              <label for="age-group" class="block text-xs font-semibold text-slate-700 mb-1.5">
+                Grupo de edad (ajuste normativo)
+              </label>
+              <select id="age-group" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="16-24">16 – 24 años</option>
+                <option value="25-34" selected>25 – 34 años</option>
+                <option value="35-44">35 – 44 años</option>
+                <option value="45-54">45 – 54 años</option>
+                <option value="55+">55 años o más</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3 shrink-0">
+            <button id="btn-start-test" class="px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm shadow-sm transition cursor-pointer">
+              Iniciar Evaluación Completa (~18 min)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scoreboard / Ranking en Vivo en Página de Inicio -->
+      <div id="saved-profiles-panel" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-base sm:text-lg font-extrabold text-slate-900">Scoreboard Grupal (<span id="welcome-group-count">0</span>)</h3>
+              <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold border border-emerald-200">Actualización en vivo</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">Clasificación ordenada por CI Total. Se actualiza automáticamente al finalizar cada evaluación o al importar un CSV.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 shrink-0">
+            <label for="csv-import-input" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition cursor-pointer">
+              + Importar CSV
+            </label>
+            <input id="csv-import-input" type="file" accept=".csv" class="hidden" />
+            <button id="btn-open-group-dashboard" disabled class="px-4 py-2 rounded-xl bg-blue-600 disabled:bg-slate-200 disabled:text-slate-400 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold transition cursor-pointer disabled:cursor-not-allowed">
+              Ver Comparativa Grupal
+            </button>
+          </div>
+        </div>
+        <div id="welcome-scoreboard-empty" class="py-8 text-center rounded-xl bg-slate-50 border border-dashed border-slate-200 text-xs sm:text-sm text-slate-500">
+          Aún no hay evaluaciones registradas en el Scoreboard. Completa el test o importa un CSV para iniciar el ranking.
+        </div>
+        <div id="welcome-scoreboard-table-wrap" class="hidden overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase">
+                <th class="py-2.5 px-3 font-bold">Pos.</th>
+                <th class="py-2.5 px-3 font-bold">Participante</th>
+                <th class="py-2.5 px-3 font-bold text-right">CI Total</th>
+                <th class="py-2.5 px-3 font-bold text-right">Percentil</th>
+                <th class="py-2.5 px-3 font-bold text-right hidden sm:table-cell">ICV</th>
+                <th class="py-2.5 px-3 font-bold text-right hidden sm:table-cell">IRP</th>
+                <th class="py-2.5 px-3 font-bold text-right hidden md:table-cell">IMT</th>
+                <th class="py-2.5 px-3 font-bold text-right hidden md:table-cell">IVP</th>
+                <th class="py-2.5 px-3 font-bold">Clasificación</th>
+                <th class="py-2.5 px-3 font-bold text-right">Informe</th>
+              </tr>
+            </thead>
+            <tbody id="welcome-profiles-list" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Clinical Disclaimer -->
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 sm:p-5 text-xs sm:text-sm text-amber-900 flex gap-3">
+        <div class="font-bold text-amber-700 shrink-0">Aviso Metodológico:</div>
+        <p class="leading-relaxed">
+          Aunque este instrumento replica la arquitectura factorial, el cronometraje y la baremación estadística (μ=100, σ=15) de las pruebas clínicas reales, <strong>no sustituye una evaluación neuropsicológica oficial</strong>. Un diagnóstico clínico o certificación de altas capacidades requiere la administración presencial de baterías estandarizadas (como WAIS-IV o Stanford-Binet V) por un psicólogo colegiado.
+        </p>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: SUBTEST INTRO -->
+    <section id="screen-subtest-intro" class="hidden">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 max-w-2xl mx-auto">
+        <div id="intro-badge" class="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold mb-3">
+          Módulo 1 de 4
+        </div>
+        <h2 id="intro-title" class="text-2xl font-extrabold text-slate-900 mb-3">Comprensión Verbal</h2>
+        <p id="intro-desc" class="text-slate-600 text-sm sm:text-base leading-relaxed mb-5"></p>
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 space-y-2 text-sm text-slate-700">
+          <div class="flex justify-between">
+            <span class="font-medium">Cantidad de ítems:</span>
+            <span id="intro-count" class="font-bold text-slate-900">10 ítems</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="font-medium">Tiempo límite:</span>
+            <span id="intro-time" class="font-bold text-slate-900">5 minutos</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="font-medium">Regla clave:</span>
+            <span id="intro-rule" class="font-semibold text-slate-800 text-right">Sin ayuda externa</span>
+          </div>
+        </div>
+        <button id="btn-begin-subtest" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition cursor-pointer">
+          Comenzar Módulo
+        </button>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: QUESTION VIEW (ICV, IRP, IMT) -->
+    <section id="screen-question" class="hidden">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-8">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+          <span id="q-category-tag" class="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">
+            Categoría
+          </span>
+          <span id="q-difficulty-tag" class="text-xs font-medium text-slate-500">
+            Dificultad: Media
+          </span>
+        </div>
+
+        <h3 id="q-prompt" class="text-base sm:text-lg font-bold text-slate-900 leading-snug mb-5">
+          Pregunta
+        </h3>
+
+        <!-- Visual Area (for Raven SVG Matrices or Digit Span) -->
+        <div id="q-visual-container" class="hidden mb-6"></div>
+
+        <!-- Multiple Choice Options -->
+        <div id="q-options-grid" class="grid gap-3"></div>
+
+        <!-- Digit Span Input Area -->
+        <div id="q-digit-input-area" class="hidden max-w-md mx-auto space-y-4">
+          <div class="text-center">
+            <label for="digit-answer-input" class="block text-sm font-semibold text-slate-700 mb-2">
+              Escribe los dígitos en <strong>ORDEN INVERSO</strong> (sin espacios):
+            </label>
+            <input id="digit-answer-input" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="Ej. 942"
+              class="w-full text-center text-2xl font-mono font-bold tracking-widest py-3 px-4 rounded-xl border-2 border-slate-300 focus:border-blue-600 focus:outline-none" />
+          </div>
+          <button id="btn-submit-digit" class="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm transition cursor-pointer">
+            Confirmar Respuesta
+          </button>
+        </div>
+
+        <!-- Footer Controls -->
+        <div id="q-nav-footer" class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
+          <span id="q-hint-text" class="text-xs text-slate-500">Selecciona una opción para continuar.</span>
+          <button id="btn-next-question" disabled class="px-5 py-2.5 rounded-xl bg-blue-600 disabled:bg-slate-200 disabled:text-slate-400 hover:bg-blue-700 text-white font-semibold text-sm transition cursor-pointer disabled:cursor-not-allowed">
+            Siguiente →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: PROCESSING SPEED (IVP) -->
+    <section id="screen-ivp" class="hidden">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-8 max-w-3xl mx-auto">
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md">
+              Clave de Símbolos (IVP)
+            </span>
+            <p class="text-xs text-slate-500 mt-1">Usa los botones (1–9) o el teclado numérico lo más rápido y preciso posible.</p>
+          </div>
+          <div class="flex gap-4 text-right">
+            <div>
+              <div class="text-xs text-slate-500">Aciertos</div>
+              <div id="ivp-hits" class="text-lg font-bold text-emerald-600">0</div>
+            </div>
+            <div>
+              <div class="text-xs text-slate-500">Errores</div>
+              <div id="ivp-errors" class="text-lg font-bold text-rose-600">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reference Key Table -->
+        <div class="mb-6">
+          <div class="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2 text-center">Tabla Clave de Referencia</div>
+          <div id="ivp-key-grid" class="grid grid-cols-9 gap-1.5 sm:gap-2 bg-slate-50 p-2.5 sm:p-3 rounded-xl border border-slate-200"></div>
+        </div>
+
+        <!-- Current Target Symbol -->
+        <div class="flex flex-col items-center justify-center py-4 mb-6 bg-slate-50/70 rounded-2xl border border-dashed border-slate-300">
+          <div class="text-xs font-semibold text-slate-500 mb-2">Codifica este símbolo:</div>
+          <div id="ivp-target-box" class="w-24 h-24 bg-white rounded-xl border-2 border-slate-900 shadow-sm flex items-center justify-center"></div>
+          <div id="ivp-feedback" class="h-5 mt-2 text-xs font-bold"></div>
+        </div>
+
+        <!-- Number Pad 1-9 -->
+        <div id="ivp-keypad" class="grid grid-cols-3 sm:grid-cols-9 gap-2"></div>
+      </div>
+    </section>
+
+    <!-- SCREEN 5: RESULTS (INDIVIDUAL & GROUP TABS) -->
+    <section id="screen-results" class="hidden space-y-6">
+      <!-- Top Mode Switcher & Group Actions -->
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-white rounded-2xl border border-slate-200 p-3 shadow-sm no-print">
+        <div class="flex items-center gap-2">
+          <button id="tab-individual" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-900 text-white transition cursor-pointer">
+            Informe Individual
+          </button>
+          <button id="tab-group" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition cursor-pointer">
+            Evaluación Grupal (<span id="group-count-badge">0</span>)
+          </button>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="btn-new-participant" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold transition cursor-pointer">
+            + Evaluar Nuevo Participante
+          </button>
+          <button id="btn-print-report" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs sm:text-sm font-semibold transition cursor-pointer">
+            Imprimir / Guardar PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 1: INDIVIDUAL REPORT VIEW -->
+      <div id="individual-report-view" class="space-y-6">
+        <!-- Top Hero Score Card -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 print-break">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold mb-3">
+                Perfil: <strong id="res-participant-name">Evaluado</strong> · Grupo <span id="res-age-label">25–34</span>
+              </div>
+              <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-1">
+                CI Total Estimado: <span id="res-fsiq" class="text-blue-600">100</span>
+              </h2>
+              <p class="text-sm text-slate-600 mb-4">
+                Intervalo de confianza del 95%: <strong id="res-ci-range">95 – 105</strong> · Percentil: <strong id="res-percentile">50.0</strong>
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <span id="res-wechsler-class" class="px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 text-xs font-bold">
+                  Clasificación Wechsler: Promedio
+                </span>
+                <span id="res-raven-grade" class="px-3 py-1.5 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-800 text-xs font-bold">
+                  Raven: Grado III
+                </span>
+                <span id="res-gai-badge" class="px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200 text-slate-800 text-xs font-bold">
+                  ICG (Capacidad General): 100
+                </span>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap gap-2.5 no-print shrink-0">
+              <button id="btn-restart-test" class="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs sm:text-sm font-semibold transition cursor-pointer">
+                Repetir Test
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Index Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 print-break">
+          <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+            <div class="text-xs font-semibold text-blue-600 uppercase">Comprensión Verbal (ICV)</div>
+            <div id="res-icv-score" class="text-2xl font-extrabold text-slate-900 mt-1">100</div>
+            <div id="res-icv-raw" class="text-xs text-slate-500 mt-0.5">0 / 10 aciertos</div>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+            <div class="text-xs font-semibold text-indigo-600 uppercase">Razon. Perceptivo (IRP)</div>
+            <div id="res-irp-score" class="text-2xl font-extrabold text-slate-900 mt-1">100</div>
+            <div id="res-irp-raw" class="text-xs text-slate-500 mt-0.5">0 / 12 aciertos</div>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+            <div class="text-xs font-semibold text-amber-600 uppercase">Memoria de Trabajo (IMT)</div>
+            <div id="res-imt-score" class="text-2xl font-extrabold text-slate-900 mt-1">100</div>
+            <div id="res-imt-raw" class="text-xs text-slate-500 mt-0.5">0 / 8 aciertos</div>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+            <div class="text-xs font-semibold text-emerald-600 uppercase">Vel. Procesamiento (IVP)</div>
+            <div id="res-ivp-score" class="text-2xl font-extrabold text-slate-900 mt-1">100</div>
+            <div id="res-ivp-raw" class="text-xs text-slate-500 mt-0.5">0 aciertos netos</div>
+          </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 print-break">
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+            <h3 class="text-sm font-bold text-slate-900 mb-1">Posición en la Campana de Gauss (μ=100, σ=15)</h3>
+            <p class="text-xs text-slate-500 mb-4">Distribución poblacional estándar de Wechsler</p>
+            <div class="relative h-64">
+              <canvas id="chart-bell"></canvas>
+            </div>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+            <h3 class="text-sm font-bold text-slate-900 mb-1">Perfil de Índices Cognitivos</h3>
+            <p class="text-xs text-slate-500 mb-4">Comparativa entre los 4 dominios evaluados</p>
+            <div class="relative h-64">
+              <canvas id="chart-indices"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interpretation & Answer Key -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 print-break">
+          <div class="flex items-center justify-between gap-4 mb-4">
+            <div>
+              <h3 class="text-base font-bold text-slate-900">Interpretación Clínica y Solucionario</h3>
+              <p class="text-xs text-slate-500">Revisa el análisis del perfil y la justificación lógica de cada ítem.</p>
+            </div>
+            <button id="btn-toggle-solutions" class="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition cursor-pointer no-print">
+              Mostrar Solucionario
+            </button>
+          </div>
+          <p id="res-narrative" class="text-sm text-slate-700 leading-relaxed mb-4"></p>
+          <div id="solutions-container" class="hidden space-y-3 pt-4 border-t border-slate-200"></div>
+        </div>
+      </div>
+
+      <!-- TAB 2: GROUP EVALUATION DASHBOARD -->
+      <div id="group-report-view" class="hidden space-y-6">
+        <!-- Group KPIs -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 print-break">
+          <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+            <div class="text-xs font-semibold text-slate-500 uppercase">Evaluados</div>
+            <div id="grp-total" class="text-2xl font-extrabold text-slate-900 mt-1">0</div>
+            <div class="text-xs text-slate-500 mt-0.5">Perfiles en grupo</div>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+            <div class="text-xs font-semibold text-blue-600 uppercase">CI Promedio Grupal</div>
+            <div id="grp-mean" class="text-2xl font-extrabold text-slate-900 mt-1">—</div>
+            <div id="grp-median" class="text-xs text-slate-500 mt-0.5">Mediana: —</div>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+            <div class="text-xs font-semibold text-indigo-600 uppercase">Dispersión (DE)</div>
+            <div id="grp-sd" class="text-2xl font-extrabold text-slate-900 mt-1">—</div>
+            <div class="text-xs text-slate-500 mt-0.5">Desviación muestral</div>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+            <div class="text-xs font-semibold text-emerald-600 uppercase">Rango Grupal</div>
+            <div id="grp-range" class="text-2xl font-extrabold text-slate-900 mt-1">—</div>
+            <div class="text-xs text-slate-500 mt-0.5">Mínimo – Máximo</div>
+          </div>
+        </div>
+
+        <!-- Group Chart -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 print-break">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900">Comparativa Grupal de CI Total y Dominios</h3>
+              <p class="text-xs text-slate-500">Desempeño comparado entre todos los participantes evaluados</p>
+            </div>
+            <div class="flex items-center gap-2 no-print">
+              <button id="btn-export-csv" class="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition cursor-pointer">
+                Exportar CSV Grupal
+              </button>
+              <button id="btn-clear-group" class="px-3.5 py-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition cursor-pointer">
+                Limpiar Grupo
+              </button>
+            </div>
+          </div>
+          <div id="clear-confirm-bar" class="hidden mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-between gap-3 text-xs text-rose-900 no-print">
+            <span>¿Seguro que deseas borrar todos los perfiles guardados del grupo?</span>
+            <div class="flex gap-2">
+              <button id="btn-confirm-clear" class="px-3 py-1.5 rounded-lg bg-rose-600 text-white font-semibold cursor-pointer">Sí, borrar</button>
+              <button id="btn-cancel-clear" class="px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 font-semibold cursor-pointer">Cancelar</button>
+            </div>
+          </div>
+          <div class="relative h-72">
+            <canvas id="chart-group"></canvas>
+          </div>
+        </div>
+
+        <!-- Group Table -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
+          <div class="px-5 py-4 border-b border-slate-200">
+            <h3 class="text-sm font-bold text-slate-900">Tabla Comparativa de Perfiles</h3>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs sm:text-sm">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase">
+                  <th class="py-3 px-4 font-bold">Participante</th>
+                  <th class="py-3 px-3 font-bold">Edad</th>
+                  <th class="py-3 px-3 font-bold text-right">CI Total</th>
+                  <th class="py-3 px-3 font-bold text-right">ICG</th>
+                  <th class="py-3 px-3 font-bold text-right">Percentil</th>
+                  <th class="py-3 px-3 font-bold text-right">ICV</th>
+                  <th class="py-3 px-3 font-bold text-right">IRP</th>
+                  <th class="py-3 px-3 font-bold text-right">IMT</th>
+                  <th class="py-3 px-3 font-bold text-right">IVP</th>
+                  <th class="py-3 px-4 font-bold">Clasificación</th>
+                  <th class="py-3 px-4 font-bold text-right no-print">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="grp-table-body" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // =========================================================================
+    // 1. SVG GENERATORS FOR RAVEN-STYLE 3x3 MATRICES
+    // =========================================================================
+    function svgWrap(inner, size = 80) {
+      return `<svg viewBox="0 0 100 100" class="w-full h-full max-w-[${size}px] max-h-[${size}px]" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
+    }
+
+    function drawShape(type, cx, cy, r, fill = '#0f172a', stroke = '#0f172a', sw = 3) {
+      if (type === 'circle') return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
+      if (type === 'square') return `<rect x="${cx - r}" y="${cy - r}" width="${r * 2}" height="${r * 2}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
+      if (type === 'triangle') {
+        const h = r * 1.15;
+        return `<polygon points="${cx},${cy - h} ${cx - r},${cy + h * 0.85} ${cx + r},${cy + h * 0.85}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
+      }
+      if (type === 'diamond') {
+        return `<polygon points="${cx},${cy - r} ${cx + r},${cy} ${cx},${cy + r} ${cx - r},${cy}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
+      }
+      return '';
+    }
+
+    function m1Cell(shape, count) {
+      const xs = count === 1 ? [50] : count === 2 ? [32, 68] : [22, 50, 78];
+      return svgWrap(xs.map(x => drawShape(shape, x, 50, 11, '#1e293b')).join(''));
+    }
+
+    function m2Cell(deg, style) {
+      const fill = style === 'solid' ? '#0f172a' : 'none';
+      const extra = style === 'dot' ? `<circle cx="50" cy="50" r="6" fill="#2563eb"/>` : '';
+      return svgWrap(`
+        <g transform="rotate(${deg} 50 50)">
+          <line x1="50" y1="80" x2="50" y2="28" stroke="#0f172a" stroke-width="5" stroke-linecap="round"/>
+          <polygon points="50,14 34,36 66,36" fill="${fill}" stroke="#0f172a" stroke-width="3.5" stroke-linejoin="round"/>
+        </g>${extra}
+      `);
+    }
+
+    function m3Cell(shape, mode) {
+      const fill = mode === 'dark' ? '#0f172a' : mode === 'blue' ? '#2563eb' : 'none';
+      const stroke = mode === 'blue' ? '#1d4ed8' : '#0f172a';
+      return svgWrap(drawShape(shape, 50, 50, 26, fill, stroke, 4.5));
+    }
+
+    function m4Cell(parts) {
+      let s = `<rect x="14" y="14" width="72" height="72" fill="none" stroke="#cbd5e1" stroke-width="2" rx="4"/>`;
+      if (parts.includes('v')) s += `<line x1="50" y1="14" x2="50" y2="86" stroke="#0f172a" stroke-width="5"/>`;
+      if (parts.includes('h')) s += `<line x1="14" y1="50" x2="86" y2="50" stroke="#0f172a" stroke-width="5"/>`;
+      if (parts.includes('d1')) s += `<line x1="16" y1="16" x2="84" y2="84" stroke="#0f172a" stroke-width="5"/>`;
+      if (parts.includes('d2')) s += `<line x1="84" y1="16" x2="16" y2="84" stroke="#0f172a" stroke-width="5"/>`;
+      if (parts.includes('c')) s += `<circle cx="50" cy="50" r="10" fill="#2563eb"/>`;
+      return svgWrap(s);
+    }
+
+    function m5Cell(bits) {
+      const coords = [[32, 32], [68, 32], [32, 68], [68, 68]];
+      let s = `<rect x="12" y="12" width="76" height="76" fill="none" stroke="#94a3b8" stroke-width="2"/>
+               <line x1="50" y1="12" x2="50" y2="88" stroke="#cbd5e1" stroke-width="1.5"/>
+               <line x1="12" y1="50" x2="88" y2="50" stroke="#cbd5e1" stroke-width="1.5"/>`;
+      bits.forEach((b, i) => {
+        if (b) s += `<circle cx="${coords[i][0]}" cy="${coords[i][1]}" r="10" fill="#0f172a"/>`;
+      });
+      return svgWrap(s);
+    }
+
+    function m6Cell(deg, bars) {
+      let bStr = '';
+      const ys = bars === 1 ? [50] : bars === 2 ? [40, 60] : [33, 50, 67];
+      ys.forEach(y => {
+        bStr += `<line x1="33" y1="${y}" x2="67" y2="${y}" stroke="#2563eb" stroke-width="4.5" stroke-linecap="round"/>`;
+      });
+      return svgWrap(`
+        <rect x="22" y="22" width="56" height="56" fill="none" stroke="#0f172a" stroke-width="4" transform="rotate(${deg} 50 50)"/>
+        ${bStr}
+      `);
+    }
+
+    function m7Cell(blackPos, ringPos) {
+      const pos = [[28, 28], [72, 28], [72, 72], [28, 72]];
+      let s = `<rect x="14" y="14" width="72" height="72" fill="none" stroke="#cbd5e1" stroke-width="2" rx="6"/>`;
+      const [bx, by] = pos[blackPos];
+      const [rx, ry] = pos[ringPos];
+      s += `<circle cx="${rx}" cy="${ry}" r="11" fill="none" stroke="#2563eb" stroke-width="4"/>`;
+      s += `<circle cx="${bx}" cy="${by}" r="7" fill="#0f172a"/>`;
+      return svgWrap(s);
+    }
+
+    function m8Cell(blacks, whites) {
+      let s = `<rect x="10" y="10" width="80" height="80" fill="none" stroke="#e2e8f0" stroke-width="2" rx="8"/>`;
+      const total = blacks + whites;
+      const startX = 50 - ((total - 1) * 14) / 2;
+      for (let i = 0; i < blacks; i++) {
+        s += `<circle cx="${startX + i * 14}" cy="38" r="5.5" fill="#0f172a"/>`;
+      }
+      for (let j = 0; j < whites; j++) {
+        s += `<circle cx="${startX + (blacks + j) * 14}" cy="64" r="5.5" fill="#ffffff" stroke="#0f172a" stroke-width="2.5"/>`;
+      }
+      return svgWrap(s);
+    }
+
+    // =========================================================================
+    // 2. TEST ITEMS DATABASE (ICV, IRP, IMT)
+    // =========================================================================
+    const ICV_ITEMS = [
+      {
+        id: 'icv1', cat: 'Semejanzas (ICV)', diff: 'Baja',
+        prompt: '¿En qué se parecen principalmente una BRÚJULA y un RELOJ?',
+        options: [
+          'Ambos son instrumentos de medición que utilizan referencias convencionales',
+          'Ambos tienen agujas que giran en sentido horario únicamente',
+          'Ambos están hechos de metal y vidrio',
+          'Ambos sirven exclusivamente para navegar en el mar'
+        ],
+        correct: 0,
+        explanation: 'En el subtest de Semejanzas de Wechsler, la respuesta de mayor abstracción conceptual identifica la categoría funcional superior: ambos son instrumentos de medición basados en sistemas convencionales (espacio/orientación y tiempo).'
+      },
+      {
+        id: 'icv2', cat: 'Analogías Verbales (ICV)', diff: 'Baja',
+        prompt: 'TERMÓMETRO es a TEMPERATURA como ANEMÓMETRO es a:',
+        options: ['Humedad ambiental', 'Velocidad del viento', 'Presión atmosférica', 'Altitud geográfica'],
+        correct: 1,
+        explanation: 'Un termómetro mide la temperatura; un anemómetro es el instrumento meteorológico que mide la velocidad del viento.'
+      },
+      {
+        id: 'icv3', cat: 'Semejanzas (ICV)', diff: 'Media',
+        prompt: '¿Qué concepto describe mejor la relación común entre DEMOCRACIA y MONARQUÍA?',
+        options: [
+          'Son sistemas económicos basados en el libre mercado',
+          'Son formas de organización política y ejercicio del poder estatal',
+          'Son doctrinas filosóficas de la Grecia clásica',
+          'Son tratados internacionales de paz'
+        ],
+        correct: 1,
+        explanation: 'Ambos términos pertenecen a la categoría supraordenada de sistemas de gobierno o formas de organización política del Estado.'
+      },
+      {
+        id: 'icv4', cat: 'Precisión Léxica (ICV)', diff: 'Media',
+        prompt: 'Elige la palabra que es antónimo más preciso de EFÍMERO:',
+        options: ['Frágil', 'Perenne', 'Inestable', 'Súbito'],
+        correct: 1,
+        explanation: 'Efímero significa pasajero o de corta duración; perenne significa continuo, incesante o duradero.'
+      },
+      {
+        id: 'icv5', cat: 'Analogías Verbales (ICV)', diff: 'Media',
+        prompt: 'AXIOMA es a DEMOSTRACIÓN como SEMILLA es a:',
+        options: ['Tierra', 'Cosecha', 'Árbol', 'Raíz'],
+        correct: 2,
+        explanation: 'Un axioma es el punto de partida fundamental sobre el que se desarrolla una demostración lógica; análogamente, la semilla es el origen del que se desarrolla el árbol.'
+      },
+      {
+        id: 'icv6', cat: 'Razonamiento Deductivo (ICV)', diff: 'Media-Alta',
+        prompt: 'Todos los metales conducen electricidad. El mercurio es un metal líquido a temperatura ambiente. Por lo tanto:',
+        options: [
+          'Solo los metales sólidos conducen bien la electricidad',
+          'El mercurio conduce electricidad',
+          'Algunos líquidos no metálicos conducen electricidad',
+          'Ninguna de las anteriores se deduce necesariamente'
+        ],
+        correct: 1,
+        explanation: 'Silogismo categórico clásico: si A ⊂ B (metales conducen electricidad) y x ∈ A (mercurio es metal), entonces necesariamente x ∈ B (el mercurio conduce electricidad).'
+      },
+      {
+        id: 'icv7', cat: 'Semejanzas Abstractas (ICV)', diff: 'Alta',
+        prompt: '¿En qué se parecen fundamentalmente una METÁFORA y un MAPA?',
+        options: [
+          'Ambos son representaciones simbólicas que abstraen una realidad compleja',
+          'Ambos se utilizan únicamente en literatura y geografía',
+          'Ambos requieren escalas numéricas exactas para interpretarse',
+          'Ambos describen lugares físicos reales'
+        ],
+        correct: 0,
+        explanation: 'Tanto una metáfora como un mapa son modelos o representaciones simbólicas que preservan relaciones estructurales de un dominio para hacerlo comprensible.'
+      },
+      {
+        id: 'icv8', cat: 'Precisión Léxica (ICV)', diff: 'Alta',
+        prompt: '¿Qué significa el término INEFABLE en un contexto literario o filosófico?',
+        options: [
+          'Que carece de validez lógica',
+          'Que no puede ser explicado o expresado con palabras',
+          'Que resulta inevitable en el destino humano',
+          'Que es extremadamente preciso y técnico'
+        ],
+        correct: 1,
+        explanation: 'Del latín ineffabilis, designa aquello tan complejo, sublime o sutil que resulta imposible de expresar mediante el lenguaje.'
+      },
+      {
+        id: 'icv9', cat: 'Razonamiento Deductivo (ICV)', diff: 'Alta',
+        prompt: 'Si "ningún A es B" y "todos los C son A", ¿cuál afirmación es necesariamente verdadera?',
+        options: [
+          'Algunos B son C',
+          'Ningún C es B',
+          'Todos los B son A',
+          'Todos los B son C'
+        ],
+        correct: 1,
+        explanation: 'Si C está completamente contenido en A, y A es disjunto de B, entonces C y B no pueden tener elementos en común: ningún C es B.'
+      },
+      {
+        id: 'icv10', cat: 'Razonamiento Verbal (ICV)', diff: 'Muy Alta',
+        prompt: 'Cuatro sospechosos declaran: Ana: "Fue Bruno". Bruno: "Fue Carlos". Carlos: "Bruno miente". Diana: "Yo no fui". Si exactamente UNA persona dice la verdad, ¿quién cometió el hecho?',
+        options: ['Ana', 'Bruno', 'Carlos', 'Diana'],
+        correct: 3,
+        explanation: 'Bruno y Carlos se contradicen directamente, por lo que exactamente uno de ellos dice la verdad y el otro miente. Como solo hay 1 persona veraz en total, Ana y Diana necesariamente mienten. Si Diana miente al decir "Yo no fui", entonces Diana fue.'
+      }
+    ];
+
+    const IRP_ITEMS = [
+      {
+        id: 'irp1', cat: 'Matriz Progresiva (IRP)', diff: 'Baja',
+        prompt: 'Observa la matriz 3×3 e identifica qué figura completa el recuadro inferior derecho (?):',
+        matrix: [
+          m1Cell('circle', 1), m1Cell('circle', 2), m1Cell('circle', 3),
+          m1Cell('triangle', 1), m1Cell('triangle', 2), m1Cell('triangle', 3),
+          m1Cell('square', 1), m1Cell('square', 2), null
+        ],
+        optionsSvg: [
+          m1Cell('square', 3), m1Cell('square', 1), m1Cell('circle', 3),
+          m1Cell('triangle', 3), m1Cell('square', 2), m1Cell('diamond', 3)
+        ],
+        correct: 0,
+        explanation: 'Progresión doble: cada fila mantiene la misma figura (círculos, triángulos, cuadrados) y aumenta la cantidad de 1 a 3 por columna. Faltan 3 cuadrados.'
+      },
+      {
+        id: 'irp2', cat: 'Matriz Progresiva (IRP)', diff: 'Baja-Media',
+        prompt: 'Identifica el patrón de rotación y estilo para completar la matriz:',
+        matrix: [
+          m2Cell(0, 'solid'), m2Cell(90, 'outline'), m2Cell(180, 'dot'),
+          m2Cell(90, 'solid'), m2Cell(180, 'outline'), m2Cell(270, 'dot'),
+          m2Cell(180, 'solid'), m2Cell(270, 'outline'), null
+        ],
+        optionsSvg: [
+          m2Cell(0, 'outline'), m2Cell(0, 'dot'), m2Cell(90, 'dot'),
+          m2Cell(270, 'solid'), m2Cell(180, 'dot'), m2Cell(0, 'solid')
+        ],
+        correct: 1,
+        explanation: 'En cada fila la flecha gira 90° en sentido horario y el estilo sigue la secuencia: sólido → contorno → punto azul. Desde 270° + 90° = 0° (arriba) con punto azul.'
+      },
+      {
+        id: 'irp3', cat: 'Matriz Progresiva (IRP)', diff: 'Media',
+        prompt: 'Cada fila y columna sigue una regla de distribución completa. ¿Qué figura falta?',
+        matrix: [
+          m3Cell('circle', 'dark'), m3Cell('triangle', 'blue'), m3Cell('square', 'outline'),
+          m3Cell('square', 'blue'), m3Cell('circle', 'outline'), m3Cell('triangle', 'dark'),
+          m3Cell('triangle', 'outline'), m3Cell('square', 'dark'), null
+        ],
+        optionsSvg: [
+          m3Cell('circle', 'dark'), m3Cell('square', 'blue'), m3Cell('circle', 'blue'),
+          m3Cell('triangle', 'blue'), m3Cell('diamond', 'blue'), m3Cell('circle', 'outline')
+        ],
+        correct: 2,
+        explanation: 'Cuadrado Latino: cada fila contiene exactamente un círculo, un triángulo y un cuadrado, y los tres estilos (negro, azul, contorno). En la fila 3 faltan el círculo y el color azul.'
+      },
+      {
+        id: 'irp4', cat: 'Matriz Progresiva (IRP)', diff: 'Media',
+        prompt: 'La tercera columna resulta de combinar (superponer) los elementos de las dos primeras:',
+        matrix: [
+          m4Cell(['v']), m4Cell(['h']), m4Cell(['v', 'h']),
+          m4Cell(['d1']), m4Cell(['d2']), m4Cell(['d1', 'd2']),
+          m4Cell(['v', 'd1']), m4Cell(['h', 'c']), null
+        ],
+        optionsSvg: [
+          m4Cell(['v', 'h']), m4Cell(['v', 'h', 'd1', 'c']), m4Cell(['d1', 'd2', 'c']),
+          m4Cell(['v', 'd1', 'd2']), m4Cell(['h', 'c']), m4Cell(['v', 'h', 'd2'])
+        ],
+        correct: 1,
+        explanation: 'Regla de unión (OR visual): Columna 3 contiene todos los trazos de Columna 1 más los de Columna 2 (vertical + diagonal \\ + horizontal + punto azul).'
+      },
+      {
+        id: 'irp5', cat: 'Matriz Progresiva (IRP)', diff: 'Media-Alta',
+        prompt: 'Regla lógica XOR: los puntos que coinciden en la misma posición en Col 1 y Col 2 se cancelan en Col 3:',
+        matrix: [
+          m5Cell([1, 0, 0, 1]), m5Cell([1, 1, 0, 0]), m5Cell([0, 1, 0, 1]),
+          m5Cell([0, 1, 1, 0]), m5Cell([1, 1, 0, 0]), m5Cell([1, 0, 1, 0]),
+          m5Cell([1, 1, 1, 0]), m5Cell([0, 1, 0, 1]), null
+        ],
+        optionsSvg: [
+          m5Cell([1, 0, 1, 1]), m5Cell([1, 1, 1, 1]), m5Cell([0, 1, 0, 0]),
+          m5Cell([1, 0, 0, 1]), m5Cell([0, 0, 1, 1]), m5Cell([1, 1, 0, 1])
+        ],
+        correct: 0,
+        explanation: 'Aplicando XOR por cuadrante en la fila 3: Sup-Izq (1^0=1), Sup-Der (1^1=0 se cancela), Inf-Izq (1^0=1), Inf-Der (0^1=1). Resultado: 3 puntos (todos menos Sup-Der).'
+      },
+      {
+        id: 'irp6', cat: 'Matriz Progresiva (IRP)', diff: 'Media-Alta',
+        prompt: 'Analiza tanto el giro del marco como el número de barras azules internas:',
+        matrix: [
+          m6Cell(0, 1), m6Cell(45, 2), m6Cell(90, 3),
+          m6Cell(45, 2), m6Cell(90, 3), m6Cell(0, 1),
+          m6Cell(90, 3), m6Cell(0, 1), null
+        ],
+        optionsSvg: [
+          m6Cell(45, 1), m6Cell(90, 2), m6Cell(45, 2),
+          m6Cell(0, 2), m6Cell(45, 3), m6Cell(0, 3)
+        ],
+        correct: 2,
+        explanation: 'El ciclo de ángulos es 0° → 45° → 90° y el de barras es 1 → 2 → 3. En la fila 3 tras 90°(3) y 0°(1) corresponde el marco a 45° (rombo) con 2 barras.'
+      },
+      {
+        id: 'irp7', cat: 'Matriz Progresiva (IRP)', diff: 'Alta',
+        prompt: 'Dos marcadores se mueven independientemente por las esquinas. ¿Dónde quedan en la celda final?',
+        matrix: [
+          m7Cell(0, 0), m7Cell(1, 3), m7Cell(2, 2),
+          m7Cell(1, 2), m7Cell(2, 1), m7Cell(3, 0),
+          m7Cell(2, 1), m7Cell(3, 0), null
+        ],
+        optionsSvg: [
+          m7Cell(0, 3), m7Cell(0, 1), m7Cell(3, 3),
+          m7Cell(1, 3), m7Cell(2, 3), m7Cell(0, 2)
+        ],
+        correct: 0,
+        explanation: 'El punto negro avanza 1 esquina en sentido horario (Inf-Izq → Sup-Izq = pos 0). El anillo azul avanza 1 esquina en sentido antihorario (Sup-Izq → Inf-Izq = pos 3).'
+      },
+      {
+        id: 'irp8', cat: 'Matriz Progresiva (IRP)', diff: 'Muy Alta',
+        prompt: 'Aritmética visual: cada punto negro vale +1 y cada punto blanco vale -1. Col 1 + Col 2 = Col 3 (valor neto):',
+        matrix: [
+          m8Cell(3, 0), m8Cell(0, 1), m8Cell(2, 0),
+          m8Cell(2, 1), m8Cell(2, 0), m8Cell(3, 0),
+          m8Cell(4, 1), m8Cell(1, 2), null
+        ],
+        optionsSvg: [
+          m8Cell(3, 0), m8Cell(2, 0), m8Cell(1, 0),
+          m8Cell(2, 1), m8Cell(0, 2), m8Cell(4, 0)
+        ],
+        correct: 1,
+        explanation: 'Fila 3: Col 1 tiene 4 negros y 1 blanco (+3). Col 2 tiene 1 negro y 2 blancos (-1). Suma neta: +3 + (-1) = +2 (2 puntos negros).'
+      },
+      {
+        id: 'irp9', cat: 'Secuencia Numérica (IRP)', diff: 'Media',
+        prompt: '¿Qué número continúa la secuencia lógica:  3,  7,  15,  31,  63,  ?',
+        options: ['95', '125', '127', '129'],
+        correct: 2,
+        explanation: 'Cada término sigue la regla 2n + 1 (o diferencias +4, +8, +16, +32, +64). 63 × 2 + 1 = 127.'
+      },
+      {
+        id: 'irp10', cat: 'Secuencia Numérica (IRP)', diff: 'Media-Alta',
+        prompt: '¿Qué número falta en la serie:  2,  6,  12,  20,  30,  42,  ?',
+        options: ['52', '54', '56', '58'],
+        correct: 2,
+        explanation: 'Las diferencias crecen de 2 en 2 (+4, +6, +8, +10, +12, +14), o bien n(n+1): 7 × 8 = 56.'
+      },
+      {
+        id: 'irp11', cat: 'Peso de Figuras (IRP)', diff: 'Alta',
+        prompt: 'Si 2 Círculos pesan lo mismo que 3 Triángulos, y 1 Cuadrado pesa lo mismo que 1 Círculo + 1 Triángulo, ¿cuántos Triángulos equilibran a 2 Cuadrados?',
+        options: ['4 Triángulos', '5 Triángulos', '6 Triángulos', '7 Triángulos'],
+        correct: 1,
+        explanation: '1 Círculo = 1.5 Triángulos. Entonces 1 Cuadrado = 1.5 + 1 = 2.5 Triángulos. Por lo tanto, 2 Cuadrados = 5 Triángulos.'
+      },
+      {
+        id: 'irp12', cat: 'Secuencia Numérica (IRP)', diff: 'Muy Alta',
+        prompt: 'Encuentra el número faltante:  1,  4,  9,  7,  7,  9,  13,  ?  (pista: suma de dígitos de los cuadrados perfectos)',
+        options: ['10', '12', '13', '16'],
+        correct: 0,
+        explanation: 'La serie base son los cuadrados (1, 4, 9, 16, 25, 36, 49, 64). El siguiente cuadrado es 64, y la suma de sus dígitos es 6 + 4 = 10.'
+      }
+    ];
+
+    const IMT_ITEMS = [
+      {
+        id: 'imt1', type: 'digit_backward', cat: 'Dígitos en Orden Inverso (IMT)', diff: 'Baja',
+        sequence: '582',
+        prompt: 'Memoriza la secuencia de dígitos que aparecerá a continuación y escríbela en ORDEN INVERSO.',
+        explanation: 'La secuencia fue 5-8-2; en orden inverso es 285.'
+      },
+      {
+        id: 'imt2', type: 'digit_backward', cat: 'Dígitos en Orden Inverso (IMT)', diff: 'Media',
+        sequence: '7391',
+        prompt: 'Memoriza la secuencia de 4 dígitos y escríbela en ORDEN INVERSO.',
+        explanation: 'La secuencia fue 7-3-9-1; en orden inverso es 1937.'
+      },
+      {
+        id: 'imt3', type: 'digit_backward', cat: 'Dígitos en Orden Inverso (IMT)', diff: 'Alta',
+        sequence: '49265',
+        prompt: 'Memoriza la secuencia de 5 dígitos y escríbela en ORDEN INVERSO.',
+        explanation: 'La secuencia fue 4-9-2-6-5; en orden inverso es 56294.'
+      },
+      {
+        id: 'imt4', type: 'digit_backward', cat: 'Dígitos en Orden Inverso (IMT)', diff: 'Muy Alta',
+        sequence: '817493',
+        prompt: 'Memoriza la secuencia de 6 dígitos y escríbela en ORDEN INVERSO.',
+        explanation: 'La secuencia fue 8-1-7-4-9-3; en orden inverso es 394718.'
+      },
+      {
+        id: 'imt5', type: 'mcq', cat: 'Aritmética Mental (IMT)', diff: 'Baja',
+        prompt: 'Calcula mentalmente: Si compras 3 cuadernos de $28 cada uno y pagas con un billete de $100, ¿cuánto cambio recibes?',
+        options: ['$14', '$16', '$18', '$24'],
+        correct: 1,
+        explanation: '3 × 28 = 84. 100 - 84 = 16.'
+      },
+      {
+        id: 'imt6', type: 'mcq', cat: 'Aritmética Mental (IMT)', diff: 'Media',
+        prompt: 'Un tren sale a las 14:35 y el viaje dura exactamente 2 horas y 48 minutos. ¿A qué hora llega?',
+        options: ['17:13', '17:23', '17:33', '16:23'],
+        correct: 1,
+        explanation: '14:35 + 2 h = 16:35. Más 25 min = 17:00. Quedan 23 min → 17:23.'
+      },
+      {
+        id: 'imt7', type: 'mcq', cat: 'Aritmética Mental (IMT)', diff: 'Alta',
+        prompt: 'Un artículo cuesta $240 después de aplicar un descuento del 20%. ¿Cuál era su precio original?',
+        options: ['$288', '$290', '$300', '$320'],
+        correct: 2,
+        explanation: 'Si $240 representa el 80% (0.8), el precio original es 240 / 0.8 = $300.'
+      },
+      {
+        id: 'imt8', type: 'mcq', cat: 'Aritmética Mental (IMT)', diff: 'Muy Alta',
+        prompt: 'Si 4 máquinas tardan 4 minutos en fabricar 4 piezas, ¿cuánto tardarán 100 máquinas en fabricar 100 piezas trabajando al mismo ritmo?',
+        options: ['1 minuto', '4 minutos', '25 minutos', '100 minutos'],
+        correct: 1,
+        explanation: 'Cada máquina fabrica 1 pieza en 4 minutos. Por lo tanto, 100 máquinas en paralelo fabrican 100 piezas en los mismos 4 minutos.'
+      }
+    ];
+
+    const IVP_SYMBOLS = [
+      `<svg viewBox="0 0 40 40" class="w-5 h-5 sm:w-7 sm:h-7"><path d="M8 20 H32 M20 8 V32" stroke="#0f172a" stroke-width="3.5" stroke-linecap="round"/></svg>`,
+      `<svg viewBox="0 0 40 40" class="w-5 h-5 sm:w-7 sm:h-7"><circle cx="20" cy="20" r="10" fill="none" stroke="#0f172a" stroke-width="3.5"/><circle cx="20" cy="20" r="3" fill="#0f172a"/></svg>`,
+      `<svg viewBox="0 0 40 40" class="w-5 h-5 sm:w-7 sm:h-7"><polygon points="20,7 33,31 7,31" fill="none" stroke="#0f172a" stroke-width="3.2"/></svg>`,
+      `<svg viewBox="0 0 40 40" class="w-5 h-5 sm:w-7 sm:h-7"><rect x="9" y="9" width="22" height="22" fill="none" stroke="#0f172a" stroke-width="3.2"/><line x1="9" y1="9" x2="31" y2="31" stroke="#0f172a" stroke-width="2.5"/></svg>`,
+      `<svg viewBox="0 0 40 40" class="w-5 h-5 sm:w-7 sm:h-7"><path d="M10 12 L20 28 L30 12" fill="none" stroke="#0f172a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      `<svg viewBox="0 0 40 40" class="w-5 h-5 sm:w-7 sm:h-7"><line x1="10" y1="14" x2="30" y2="14" stroke="#0f172a" stroke-width="3.5"/><line x1="10" y1="26" x2="30" y2="26" stroke="#0f172a" stroke-width="3.5"/></svg>`,
+      `<svg viewBox="0 0 40 40" class="w-5 h-5 sm:w-7 sm:h-7"><polygon points="20,6 34,20 20,34 6,20" fill="none" stroke="#0f172a" stroke-width="3.2"/></svg>`,
+      `<svg viewBox="0 0 40 40" class="w-5 h-5 sm:w-7 sm:h-7"><path d="M10 28 V12 H28" fill="none" stroke="#0f172a" stroke-width="3.5" stroke-linecap="round"/></svg>`,
+      `<svg viewBox="0 0 40 40" class="w-5 h-5 sm:w-7 sm:h-7"><path d="M10 10 L30 30 M30 10 L10 30" stroke="#0f172a" stroke-width="3.5" stroke-linecap="round"/></svg>`
+    ];
+
+    // =========================================================================
+    // 3. APPLICATION STATE & STORAGE
+    // =========================================================================
+    const STORAGE_KEY = 'iq_battery_profiles_v1';
+    const state = {
+      subtestIndex: 0,
+      itemIndex: 0,
+      participantName: '',
+      ageGroup: '25-34',
+      timerId: null,
+      secondsLeft: 0,
+      digitTimeoutId: null,
+      answers: {
+        icv: [],
+        irp: [],
+        imt: [],
+        ivp: { hits: 0, errors: 0, currentTarget: 0 }
+      },
+      currentSelection: null,
+      profiles: [],
+      activeProfileId: null,
+      bellChart: null,
+      indicesChart: null,
+      groupChart: null
+    };
+
+    const SUBTESTS = [
+      {
+        key: 'icv',
+        title: 'Módulo 1: Comprensión Verbal (ICV)',
+        badge: 'Módulo 1 de 4',
+        desc: 'Evalúa tu capacidad para abstraer relaciones conceptuales, precisión léxica y razonamiento deductivo verbal.',
+        countText: '10 ítems',
+        timeSec: 300,
+        timeText: '5 minutos',
+        ruleText: 'Lee con atención; no hay penalización por error',
+        items: ICV_ITEMS
+      },
+      {
+        key: 'irp',
+        title: 'Módulo 2: Razonamiento Perceptivo (IRP)',
+        badge: 'Módulo 2 de 4',
+        desc: 'Evalúa tu inteligencia fluida no verbal mediante matrices progresivas 3×3 estilo Raven, secuencias numéricas y equilibrio lógico.',
+        countText: '12 ítems',
+        timeSec: 480,
+        timeText: '8 minutos',
+        ruleText: 'Analiza filas y columnas sistemáticamente',
+        items: IRP_ITEMS
+      },
+      {
+        key: 'imt',
+        title: 'Módulo 3: Memoria de Trabajo (IMT)',
+        badge: 'Módulo 3 de 4',
+        desc: 'Evalúa tu capacidad para retener y manipular información temporalmente en la mente (dígitos inversos y aritmética mental).',
+        countText: '8 ítems',
+        timeSec: 240,
+        timeText: '4 minutos',
+        ruleText: 'Prohibido usar lápiz, papel o calculadora',
+        items: IMT_ITEMS
+      },
+      {
+        key: 'ivp',
+        title: 'Módulo 4: Velocidad de Procesamiento (IVP)',
+        badge: 'Módulo 4 de 4',
+        desc: 'Evalúa la rapidez y precisión visomotora. Empareja cada símbolo con su dígito (1–9) según la tabla clave superior.',
+        countText: 'Continuo (90 seg)',
+        timeSec: 90,
+        timeText: '90 segundos',
+        ruleText: 'Los errores restan 0.5 puntos',
+        items: []
+      }
+    ];
+
+    const $ = id => document.getElementById(id);
+
+    const INITIAL_SEED_PROFILES = [
+      {
+        id: 'seed_user_113',
+        name: 'Tu Puntaje (Anfitrión)',
+        ageGroup: '25-34',
+        timestamp: '2026-11-11T23:00:00.000Z',
+        fsiq: 113,
+        gai: 113,
+        percentile: 80.7,
+        wechslerClass: 'Promedio Alto',
+        ravenGrade: 'Grado II (Por Encima del Promedio)',
+        icvScore: 113, icvHits: 6,
+        irpScore: 113, irpHits: 8,
+        imtScore: 113, imtHits: 5,
+        ivpScore: 113, ivpNet: 33.0, ivpHits: 33, ivpErrors: 0,
+        solutions: []
+      }
+    ];
+
+    function loadProfiles() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          state.profiles = JSON.parse(raw) || [];
+        }
+      } catch (e) {
+        state.profiles = [];
+      }
+      if (state.profiles.length === 0) {
+        state.profiles = [...INITIAL_SEED_PROFILES];
+        saveProfiles();
+      }
+      renderWelcomeProfiles();
+    }
+
+    function saveProfiles() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.profiles));
+      } catch (e) {
+        // Ignore storage quota errors in sandboxed iframes
+      }
+    }
+
+    function showScreen(screenId) {
+      ['screen-welcome', 'screen-subtest-intro', 'screen-question', 'screen-ivp', 'screen-results'].forEach(s => {
+        $(s).classList.toggle('hidden', s !== screenId);
+      });
+    }
+
+    function clearTimers() {
+      if (state.timerId) {
+        clearInterval(state.timerId);
+        state.timerId = null;
+      }
+      if (state.digitTimeoutId) {
+        clearTimeout(state.digitTimeoutId);
+        state.digitTimeoutId = null;
+      }
+    }
+
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60).toString().padStart(2, '0');
+      const s = (sec % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    function startTimer(seconds, onExpire) {
+      clearInterval(state.timerId);
+      state.secondsLeft = seconds;
+      $('timer-display').textContent = formatTime(state.secondsLeft);
+      $('timer-dot').className = 'w-2 h-2 rounded-full bg-emerald-500';
+      state.timerId = setInterval(() => {
+        state.secondsLeft--;
+        $('timer-display').textContent = formatTime(Math.max(0, state.secondsLeft));
+        if (state.secondsLeft <= 20) {
+          $('timer-dot').className = 'w-2 h-2 rounded-full bg-rose-500 animate-pulse';
+        }
+        if (state.secondsLeft <= 0) {
+          clearInterval(state.timerId);
+          onExpire();
+        }
+      }, 1000);
+    }
+
+    // =========================================================================
+    // 4. WELCOME & GROUP PROFILE LIST
+    // =========================================================================
+    function renderWelcomeProfiles() {
+      const list = $('welcome-profiles-list');
+      const emptyBox = $('welcome-scoreboard-empty');
+      const tableWrap = $('welcome-scoreboard-table-wrap');
+      const groupBtn = $('btn-open-group-dashboard');
+
+      $('welcome-group-count').textContent = state.profiles.length;
+      $('group-count-badge').textContent = state.profiles.length;
+
+      if (state.profiles.length === 0) {
+        emptyBox.classList.remove('hidden');
+        tableWrap.classList.add('hidden');
+        groupBtn.disabled = true;
+        list.innerHTML = '';
+        return;
+      }
+
+      emptyBox.classList.add('hidden');
+      tableWrap.classList.remove('hidden');
+      groupBtn.disabled = false;
+      list.innerHTML = '';
+
+      const ranked = [...state.profiles].sort((a, b) => b.fsiq - a.fsiq);
+      ranked.forEach((p, idx) => {
+        const rank = idx + 1;
+        const badgeClass = rank === 1
+          ? 'bg-amber-100 text-amber-800 border-amber-300'
+          : rank === 2
+          ? 'bg-slate-200 text-slate-800 border-slate-300'
+          : rank === 3
+          ? 'bg-orange-100 text-orange-800 border-orange-300'
+          : 'bg-slate-50 text-slate-600 border-slate-200';
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50/80';
+        tr.innerHTML = `
+          <td class="py-2.5 px-3">
+            <span class="inline-flex items-center justify-center w-6 h-6 rounded-full border text-xs font-bold ${badgeClass}">#${rank}</span>
+          </td>
+          <td class="py-2.5 px-3 font-bold text-slate-900">
+            ${escapeHtml(p.name)}
+            <span class="block text-[11px] font-normal text-slate-500">Edad: ${escapeHtml(p.ageGroup)}</span>
+          </td>
+          <td class="py-2.5 px-3 text-right font-extrabold text-blue-600 text-sm">${p.fsiq}</td>
+          <td class="py-2.5 px-3 text-right text-slate-600">${Number(p.percentile).toFixed(1)}%</td>
+          <td class="py-2.5 px-3 text-right text-slate-700 hidden sm:table-cell">${p.icvScore}</td>
+          <td class="py-2.5 px-3 text-right text-slate-700 hidden sm:table-cell">${p.irpScore}</td>
+          <td class="py-2.5 px-3 text-right text-slate-700 hidden md:table-cell">${p.imtScore}</td>
+          <td class="py-2.5 px-3 text-right text-slate-700 hidden md:table-cell">${p.ivpScore}</td>
+          <td class="py-2.5 px-3 text-xs font-semibold text-slate-700">${escapeHtml(p.wechslerClass)}</td>
+          <td class="py-2.5 px-3 text-right">
+            <button type="button" class="px-3 py-1 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-xs font-semibold text-slate-700 cursor-pointer">
+              Ver
+            </button>
+          </td>
+        `;
+        tr.querySelector('button').addEventListener('click', () => {
+          displayProfileResults(p.id, 'individual');
+        });
+        list.appendChild(tr);
+      });
+    }
+
+    $('csv-import-input').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const lines = String(ev.target.result || '').split(/\r?\n/).filter(Boolean);
+        for (let i = 1; i < lines.length; i++) {
+          const cols = lines[i].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
+          if (!cols || cols.length < 11) continue;
+          const clean = v => v.replace(/^"|"$/g, '').replace(/""/g, '"').trim();
+          const fsiq = parseInt(clean(cols[2]), 10);
+          if (isNaN(fsiq)) continue;
+          state.profiles.push({
+            id: 'imp_' + Date.now() + '_' + i,
+            name: clean(cols[0]) || `Importado ${i}`,
+            ageGroup: clean(cols[1]) || '25-34',
+            fsiq,
+            gai: parseInt(clean(cols[3]), 10) || fsiq,
+            percentile: parseFloat(clean(cols[4])) || 50,
+            wechslerClass: clean(cols[5]) || getWechslerClass(fsiq),
+            ravenGrade: clean(cols[6]) || 'Grado III',
+            icvScore: parseInt(clean(cols[7]), 10) || 100,
+            irpScore: parseInt(clean(cols[8]), 10) || 100,
+            imtScore: parseInt(clean(cols[9]), 10) || 100,
+            ivpScore: parseInt(clean(cols[10]), 10) || 100,
+            icvHits: 0, irpHits: 0, imtHits: 0, ivpNet: 0, ivpHits: 0, ivpErrors: 0,
+            timestamp: clean(cols[11]) || new Date().toISOString(),
+            solutions: []
+          });
+        }
+        saveProfiles();
+        renderWelcomeProfiles();
+        e.target.value = '';
+      };
+      reader.readAsText(file);
+    });
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    }
+
+    $('btn-open-group-dashboard').addEventListener('click', () => {
+      if (state.profiles.length > 0) {
+        displayProfileResults(state.profiles[state.profiles.length - 1].id, 'group');
+      }
+    });
+
+    $('btn-start-test').addEventListener('click', () => {
+      const enteredName = $('participant-name').value.trim();
+      state.participantName = enteredName || `Evaluado #${state.profiles.length + 1}`;
+      state.ageGroup = $('age-group').value;
+      state.subtestIndex = 0;
+      state.answers = { icv: [], irp: [], imt: [], ivp: { hits: 0, errors: 0, currentTarget: 0 } };
+      showSubtestIntro();
+    });
+
+    function showSubtestIntro() {
+      clearTimers();
+      const sub = SUBTESTS[state.subtestIndex];
+      $('header-status').classList.add('hidden');
+      $('progress-track').classList.add('hidden');
+      $('intro-badge').textContent = sub.badge;
+      $('intro-title').textContent = sub.title;
+      $('intro-desc').textContent = sub.desc;
+      $('intro-count').textContent = sub.countText;
+      $('intro-time').textContent = sub.timeText;
+      $('intro-rule').textContent = sub.ruleText;
+      showScreen('screen-subtest-intro');
+    }
+
+    $('btn-begin-subtest').addEventListener('click', () => {
+      const sub = SUBTESTS[state.subtestIndex];
+      state.itemIndex = 0;
+      $('header-status').classList.remove('hidden');
+      $('header-status').classList.add('flex');
+      $('progress-track').classList.remove('hidden');
+      $('header-subtest-name').textContent = sub.title;
+
+      if (sub.key === 'ivp') {
+        startIVP();
+      } else {
+        showScreen('screen-question');
+        startTimer(sub.timeSec, () => finishCurrentSubtest());
+        renderQuestion();
+      }
+    });
+
+    function renderQuestion() {
+      const sub = SUBTESTS[state.subtestIndex];
+      const item = sub.items[state.itemIndex];
+      state.currentSelection = null;
+
+      $('header-progress-text').textContent = `Ítem ${state.itemIndex + 1} de ${sub.items.length}`;
+      $('progress-fill').style.width = `${((state.itemIndex) / sub.items.length) * 100}%`;
+      $('q-category-tag').textContent = item.cat;
+      $('q-difficulty-tag').textContent = `Dificultad: ${item.diff}`;
+      $('q-prompt').textContent = item.prompt;
+
+      const vis = $('q-visual-container');
+      const optGrid = $('q-options-grid');
+      const digitArea = $('q-digit-input-area');
+      const navFooter = $('q-nav-footer');
+
+      vis.innerHTML = '';
+      vis.classList.add('hidden');
+      optGrid.innerHTML = '';
+      optGrid.classList.add('hidden');
+      digitArea.classList.add('hidden');
+      navFooter.classList.remove('hidden');
+      $('btn-next-question').disabled = true;
+
+      if (item.matrix) {
+        vis.classList.remove('hidden');
+        const cellsHtml = item.matrix.map(cell => {
+          if (cell === null) {
+            return `<div class="matrix-cell bg-blue-50 border-dashed border-blue-400 text-blue-600 font-extrabold text-2xl">?</div>`;
+          }
+          return `<div class="matrix-cell p-2">${cell}</div>`;
+        }).join('');
+        vis.innerHTML = `<div class="grid grid-cols-3 gap-2.5 max-w-[300px] sm:max-w-[330px] mx-auto bg-slate-100 p-3 rounded-xl border border-slate-200">${cellsHtml}</div>`;
+
+        optGrid.classList.remove('hidden');
+        optGrid.className = 'grid grid-cols-3 sm:grid-cols-6 gap-3';
+        const labels = ['A', 'B', 'C', 'D', 'E', 'F'];
+        item.optionsSvg.forEach((svgStr, idx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'option-card rounded-xl border-2 border-slate-200 bg-white p-2.5 flex flex-col items-center gap-1.5 cursor-pointer';
+          btn.innerHTML = `<div class="w-16 h-16 flex items-center justify-center">${svgStr}</div><span class="text-xs font-bold text-slate-500">${labels[idx]}</span>`;
+          btn.addEventListener('click', () => selectOption(idx, btn));
+          optGrid.appendChild(btn);
+        });
+      } else if (item.type === 'digit_backward') {
+        navFooter.classList.add('hidden');
+        vis.classList.remove('hidden');
+        vis.innerHTML = `
+          <div class="max-w-sm mx-auto bg-slate-900 text-white rounded-2xl p-8 text-center">
+            <div id="digit-stage-label" class="text-xs uppercase tracking-widest text-slate-400 mb-3">Observa con atención</div>
+            <div id="digit-flash" class="text-5xl font-mono font-extrabold h-14 flex items-center justify-center">•</div>
+          </div>`;
+        const digits = item.sequence.split('');
+        let step = 0;
+
+        function nextDigit() {
+          if (step < digits.length) {
+            $('digit-flash').textContent = digits[step];
+            step++;
+            state.digitTimeoutId = setTimeout(() => {
+              $('digit-flash').textContent = '';
+              state.digitTimeoutId = setTimeout(nextDigit, 220);
+            }, 800);
+          } else {
+            $('digit-stage-label').textContent = 'Secuencia finalizada';
+            $('digit-flash').textContent = '✓';
+            digitArea.classList.remove('hidden');
+            $('digit-answer-input').value = '';
+            $('digit-answer-input').focus();
+          }
+        }
+        state.digitTimeoutId = setTimeout(nextDigit, 650);
+      } else {
+        optGrid.classList.remove('hidden');
+        optGrid.className = 'grid grid-cols-1 gap-2.5';
+        const labels = ['A', 'B', 'C', 'D'];
+        item.options.forEach((optText, idx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'option-card text-left rounded-xl border-2 border-slate-200 bg-white px-4 py-3.5 flex items-center gap-3 cursor-pointer';
+          btn.innerHTML = `<span class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">${labels[idx]}</span><span class="text-sm sm:text-base text-slate-800 font-medium">${optText}</span>`;
+          btn.addEventListener('click', () => selectOption(idx, btn));
+          optGrid.appendChild(btn);
+        });
+      }
+    }
+
+    function selectOption(idx, btnEl) {
+      state.currentSelection = idx;
+      document.querySelectorAll('#q-options-grid .option-card').forEach(b => b.classList.remove('selected'));
+      btnEl.classList.add('selected');
+      $('btn-next-question').disabled = false;
+    }
+
+    $('btn-next-question').addEventListener('click', () => {
+      const sub = SUBTESTS[state.subtestIndex];
+      const item = sub.items[state.itemIndex];
+      const isCorrect = state.currentSelection === item.correct;
+      state.answers[sub.key].push({
+        id: item.id,
+        prompt: item.prompt,
+        selected: state.currentSelection,
+        correct: item.correct,
+        isCorrect,
+        explanation: item.explanation
+      });
+      advanceItem();
+    });
+
+    function submitDigitSpan() {
+      const sub = SUBTESTS[state.subtestIndex];
+      const item = sub.items[state.itemIndex];
+      const rawInput = $('digit-answer-input').value.trim().replace(/\s+/g, '');
+      const expected = item.sequence.split('').reverse().join('');
+      const isCorrect = rawInput === expected;
+      state.answers.imt.push({
+        id: item.id,
+        prompt: `${item.cat} (Secuencia: ${item.sequence})`,
+        selected: rawInput || '(vacío)',
+        correct: expected,
+        isCorrect,
+        explanation: item.explanation
+      });
+      advanceItem();
+    }
+
+    $('btn-submit-digit').addEventListener('click', submitDigitSpan);
+    $('digit-answer-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !$('q-digit-input-area').classList.contains('hidden')) {
+        submitDigitSpan();
+      }
+    });
+
+    function advanceItem() {
+      const sub = SUBTESTS[state.subtestIndex];
+      state.itemIndex++;
+      if (state.itemIndex < sub.items.length) {
+        renderQuestion();
+      } else {
+        finishCurrentSubtest();
+      }
+    }
+
+    function finishCurrentSubtest() {
+      clearTimers();
+      const sub = SUBTESTS[state.subtestIndex];
+      if (sub.key !== 'ivp') {
+        while (state.answers[sub.key].length < sub.items.length) {
+          const idx = state.answers[sub.key].length;
+          const item = sub.items[idx];
+          state.answers[sub.key].push({
+            id: item.id,
+            prompt: item.prompt,
+            selected: null,
+            correct: item.correct || item.sequence?.split('').reverse().join(''),
+            isCorrect: false,
+            explanation: item.explanation + ' (Tiempo agotado)'
+          });
+        }
+      }
+      state.subtestIndex++;
+      if (state.subtestIndex < SUBTESTS.length) {
+        showSubtestIntro();
+      } else {
+        computeAndSaveProfile();
+      }
+    }
+
+    // =========================================================================
+    // 5. PROCESSING SPEED (IVP) ENGINE
+    // =========================================================================
+    function startIVP() {
+      showScreen('screen-ivp');
+      $('header-progress-text').textContent = '90 segundos continuos';
+      $('progress-fill').style.width = '100%';
+      state.answers.ivp = { hits: 0, errors: 0, currentTarget: Math.floor(Math.random() * 9) };
+      $('ivp-hits').textContent = '0';
+      $('ivp-errors').textContent = '0';
+      $('ivp-feedback').textContent = '';
+
+      const keyGrid = $('ivp-key-grid');
+      keyGrid.innerHTML = '';
+      IVP_SYMBOLS.forEach((svg, idx) => {
+        const cell = document.createElement('div');
+        cell.className = 'flex flex-col items-center bg-white rounded-lg border border-slate-200 py-1.5 px-1';
+        cell.innerHTML = `<div class="mb-1">${svg}</div><div class="text-xs font-extrabold text-blue-700 border-t border-slate-100 w-full text-center pt-0.5">${idx + 1}</div>`;
+        keyGrid.appendChild(cell);
+      });
+
+      const keypad = $('ivp-keypad');
+      keypad.innerHTML = '';
+      for (let n = 1; n <= 9; n++) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'py-3 rounded-xl bg-slate-100 hover:bg-blue-600 hover:text-white font-bold text-lg text-slate-800 border border-slate-200 transition cursor-pointer';
+        btn.textContent = n;
+        btn.addEventListener('click', () => handleIVPInput(n - 1));
+        keypad.appendChild(btn);
+      }
+
+      renderIVPTarget();
+      startTimer(90, () => {
+        document.removeEventListener('keydown', ivpKeyHandler);
+        finishCurrentSubtest();
+      });
+      document.addEventListener('keydown', ivpKeyHandler);
+    }
+
+    function ivpKeyHandler(e) {
+      if ($('screen-ivp').classList.contains('hidden')) return;
+      if (e.key >= '1' && e.key <= '9') {
+        handleIVPInput(parseInt(e.key, 10) - 1);
+      }
+    }
+
+    function renderIVPTarget() {
+      $('ivp-target-box').innerHTML = IVP_SYMBOLS[state.answers.ivp.currentTarget];
+    }
+
+    function handleIVPInput(chosenIdx) {
+      const fb = $('ivp-feedback');
+      if (chosenIdx === state.answers.ivp.currentTarget) {
+        state.answers.ivp.hits++;
+        $('ivp-hits').textContent = state.answers.ivp.hits;
+        fb.textContent = '✓ Correcto';
+        fb.className = 'h-5 mt-2 text-xs font-bold text-emerald-600';
+      } else {
+        state.answers.ivp.errors++;
+        $('ivp-errors').textContent = state.answers.ivp.errors;
+        fb.textContent = '✗ Error (-0.5)';
+        fb.className = 'h-5 mt-2 text-xs font-bold text-rose-600';
+      }
+      let next = Math.floor(Math.random() * 9);
+      if (next === state.answers.ivp.currentTarget) next = (next + 1) % 9;
+      state.answers.ivp.currentTarget = next;
+      renderIVPTarget();
+    }
+
+    // =========================================================================
+    // 6. PSYCHOMETRIC SCORING, MULTI-PROFILE & GROUP DASHBOARD
+    // =========================================================================
+    function normalCDF(z) {
+      const t = 1 / (1 + 0.2316419 * Math.abs(z));
+      const d = 0.3989423 * Math.exp((-z * z) / 2);
+      let prob = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+      if (z > 0) prob = 1 - prob;
+      return prob * 100;
+    }
+
+    function clampIQ(val) {
+      return Math.max(55, Math.min(145, Math.round(val)));
+    }
+
+    function getWechslerClass(iq) {
+      if (iq >= 130) return 'Muy Superior';
+      if (iq >= 120) return 'Superior';
+      if (iq >= 110) return 'Promedio Alto';
+      if (iq >= 90) return 'Promedio';
+      if (iq >= 80) return 'Promedio Bajo';
+      if (iq >= 70) return 'Limítrofe';
+      return 'Extremadamente Bajo';
+    }
+
+    function getRavenGrade(pct) {
+      if (pct >= 95) return 'Grado I (Intelectualmente Superior)';
+      if (pct >= 75) return 'Grado II (Por Encima del Promedio)';
+      if (pct >= 25) return 'Grado III (Intelectualmente Promedio)';
+      if (pct > 5) return 'Grado IV (Por Debajo del Promedio)';
+      return 'Grado V (Déficit)';
+    }
+
+    function computeAndSaveProfile() {
+      const icvHits = state.answers.icv.filter(a => a.isCorrect).length;
+      const irpHits = state.answers.irp.filter(a => a.isCorrect).length;
+      const imtHits = state.answers.imt.filter(a => a.isCorrect).length;
+      const ivpNet = Math.max(0, state.answers.ivp.hits - 0.5 * state.answers.ivp.errors);
+      const ageAdj = { '16-24': 0, '25-34': 0, '35-44': 2, '45-54': 4, '55+': 7 }[state.ageGroup] || 0;
+
+      const icvScore = clampIQ(65 + (icvHits / 10) * 75);
+      const irpScore = clampIQ(62 + (irpHits / 12) * 80);
+      const imtScore = clampIQ(65 + (imtHits / 8) * 75);
+      const ivpScore = clampIQ(65 + (ivpNet / 48) * 70 + ageAdj);
+
+      const fsiq = clampIQ(irpScore * 0.35 + icvScore * 0.30 + imtScore * 0.20 + ivpScore * 0.15);
+      const gai = clampIQ((icvScore + irpScore) / 2);
+      const percentile = normalCDF((fsiq - 100) / 15);
+      const ravenPct = normalCDF((irpScore - 100) / 15);
+
+      const profile = {
+        id: 'p_' + Date.now(),
+        name: state.participantName || `Evaluado #${state.profiles.length + 1}`,
+        ageGroup: state.ageGroup,
+        timestamp: new Date().toISOString(),
+        fsiq,
+        gai,
+        percentile: Number(percentile.toFixed(1)),
+        wechslerClass: getWechslerClass(fsiq),
+        ravenGrade: getRavenGrade(ravenPct),
+        icvScore, icvHits,
+        irpScore, irpHits,
+        imtScore, imtHits,
+        ivpScore, ivpNet: Number(ivpNet.toFixed(1)),
+        ivpHits: state.answers.ivp.hits,
+        ivpErrors: state.answers.ivp.errors,
+        solutions: [
+          ...state.answers.icv.map((a, i) => ({ label: `ICV #${i + 1}`, prompt: a.prompt, isCorrect: a.isCorrect, explanation: a.explanation })),
+          ...state.answers.irp.map((a, i) => ({ label: `IRP #${i + 1}`, prompt: a.prompt, isCorrect: a.isCorrect, explanation: a.explanation })),
+          ...state.answers.imt.map((a, i) => ({ label: `IMT #${i + 1}`, prompt: a.prompt, isCorrect: a.isCorrect, explanation: a.explanation }))
+        ]
+      };
+
+      state.profiles.push(profile);
+      saveProfiles();
+      renderWelcomeProfiles();
+      displayProfileResults(profile.id, 'individual');
+    }
+
+    function switchResultsTab(tab) {
+      const isInd = tab === 'individual';
+      $('individual-report-view').classList.toggle('hidden', !isInd);
+      $('group-report-view').classList.toggle('hidden', isInd);
+      $('tab-individual').className = isInd
+        ? 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-900 text-white transition cursor-pointer'
+        : 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition cursor-pointer';
+      $('tab-group').className = !isInd
+        ? 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-900 text-white transition cursor-pointer'
+        : 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition cursor-pointer';
+      if (!isInd) renderGroupDashboard();
+    }
+
+    $('tab-individual').addEventListener('click', () => switchResultsTab('individual'));
+    $('tab-group').addEventListener('click', () => switchResultsTab('group'));
+
+    function displayProfileResults(profileId, initialTab = 'individual') {
+      clearTimers();
+      $('header-status').classList.add('hidden');
+      $('progress-track').classList.add('hidden');
+      showScreen('screen-results');
+
+      const p = state.profiles.find(x => x.id === profileId) || state.profiles[state.profiles.length - 1];
+      if (!p) return;
+      state.activeProfileId = p.id;
+      $('group-count-badge').textContent = state.profiles.length;
+
+      $('res-participant-name').textContent = p.name;
+      $('res-age-label').textContent = p.ageGroup;
+      $('res-fsiq').textContent = p.fsiq;
+      $('res-ci-range').textContent = `${Math.max(55, p.fsiq - 5)} – ${Math.min(145, p.fsiq + 5)}`;
+      $('res-percentile').textContent = `${p.percentile.toFixed(1)}%`;
+      $('res-wechsler-class').textContent = `Clasificación Wechsler: ${p.wechslerClass}`;
+      $('res-raven-grade').textContent = `Raven: ${p.ravenGrade}`;
+      $('res-gai-badge').textContent = `ICG (Capacidad General): ${p.gai}`;
+
+      $('res-icv-score').textContent = p.icvScore;
+      $('res-icv-raw').textContent = `${p.icvHits} / 10 aciertos`;
+      $('res-irp-score').textContent = p.irpScore;
+      $('res-irp-raw').textContent = `${p.irpHits} / 12 aciertos`;
+      $('res-imt-score').textContent = p.imtScore;
+      $('res-imt-raw').textContent = `${p.imtHits} / 8 aciertos`;
+      $('res-ivp-score').textContent = p.ivpScore;
+      $('res-ivp-raw').textContent = `${p.ivpNet.toFixed(1)} pts netos (${p.ivpHits}✓ / ${p.ivpErrors}✗)`;
+
+      const scores = [
+        { name: 'Comprensión Verbal (ICV)', val: p.icvScore },
+        { name: 'Razonamiento Perceptivo (IRP)', val: p.irpScore },
+        { name: 'Memoria de Trabajo (IMT)', val: p.imtScore },
+        { name: 'Velocidad de Procesamiento (IVP)', val: p.ivpScore }
+      ].sort((a, b) => b.val - a.val);
+
+      $('res-narrative').innerHTML = `El desempeño global estimado de <strong>${escapeHtml(p.name)}</strong> corresponde a un <strong>CI Total de ${p.fsiq}</strong> (rango <strong>${p.wechslerClass}</strong>, superior al ${p.percentile.toFixed(1)}% de la población normativa). Su <strong>Índice de Capacidad General (ICG = ${p.gai})</strong> resume el razonamiento abstracto y verbal sin el peso de la velocidad. Su mayor fortaleza relativa se observó en <strong>${scores[0].name} (${scores[0].val})</strong>, mientras que el área con mayor margen de mejora fue <strong>${scores[3].name} (${scores[3].val})</strong>.`;
+
+      renderCharts(p.fsiq, p.icvScore, p.irpScore, p.imtScore, p.ivpScore);
+      renderSolutions(p.solutions || []);
+      switchResultsTab(initialTab);
+    }
+
+    function renderCharts(fsiq, icv, irp, imt, ivp) {
+      if (typeof Chart === "undefined") return;
+      if (state.bellChart) state.bellChart.destroy();
+      if (state.indicesChart) state.indicesChart.destroy();
+
+      const xs = [];
+      const ys = [];
+      for (let x = 55; x <= 145; x += 2) {
+        xs.push(x);
+        const z = (x - 100) / 15;
+        ys.push((1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * z * z));
+      }
+      const userIdx = xs.reduce((bestIdx, x, i) => Math.abs(x - fsiq) < Math.abs(xs[bestIdx] - fsiq) ? i : bestIdx, 0);
+      const pointRadii = xs.map((_, i) => i === userIdx ? 7 : 0);
+
+      state.bellChart = new Chart($('chart-bell'), {
+        type: 'line',
+        data: {
+          labels: xs,
+          datasets: [{
+            label: 'Distribución Normal (CI)',
+            data: ys,
+            borderColor: '#2563eb',
+            backgroundColor: 'rgba(37, 99, 235, 0.12)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: pointRadii,
+            pointBackgroundColor: '#dc2626',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { display: false },
+            x: { grid: { display: false }, ticks: { maxTicksLimit: 7 } }
+          }
+        }
+      });
+
+      state.indicesChart = new Chart($('chart-indices'), {
+        type: 'bar',
+        data: {
+          labels: ['ICV (Verbal)', 'IRP (Perceptivo)', 'IMT (Memoria)', 'IVP (Velocidad)'],
+          datasets: [{
+            label: 'Puntuación Índice',
+            data: [icv, irp, imt, ivp],
+            backgroundColor: ['#2563eb', '#4f46e5', '#d97706', '#059669'],
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { min: 50, max: 150, grid: { color: '#f1f5f9' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    function renderSolutions(solutions) {
+      const container = $('solutions-container');
+      container.innerHTML = '';
+      solutions.forEach(item => {
+        const div = document.createElement('div');
+        div.className = `p-3.5 rounded-xl border ${item.isCorrect ? 'bg-emerald-50/50 border-emerald-200' : 'bg-rose-50/50 border-rose-200'} text-xs sm:text-sm`;
+        div.innerHTML = `
+          <div class="flex items-center justify-between font-bold mb-1">
+            <span class="text-slate-800">${escapeHtml(item.label)}: ${escapeHtml(item.prompt)}</span>
+            <span class="${item.isCorrect ? 'text-emerald-700' : 'text-rose-700'} shrink-0 ml-2">${item.isCorrect ? '✓ Correcto' : '✗ Incorrecto'}</span>
+          </div>
+          <p class="text-slate-600">${escapeHtml(item.explanation)}</p>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderGroupDashboard() {
+      const list = state.profiles;
+      const n = list.length;
+      $('grp-total').textContent = n;
+
+      if (n === 0) {
+        $('grp-mean').textContent = '—';
+        $('grp-median').textContent = 'Mediana: —';
+        $('grp-sd').textContent = '—';
+        $('grp-range').textContent = '—';
+        $('grp-table-body').innerHTML = `<tr><td colspan="11" class="py-6 text-center text-slate-500">No hay perfiles registrados aún.</td></tr>`;
+        if (state.groupChart) { state.groupChart.destroy(); state.groupChart = null; }
+        return;
+      }
+
+      const fsiqs = list.map(p => p.fsiq).sort((a, b) => a - b);
+      const mean = fsiqs.reduce((s, v) => s + v, 0) / n;
+      const median = n % 2 === 1 ? fsiqs[(n - 1) / 2] : (fsiqs[n / 2 - 1] + fsiqs[n / 2]) / 2;
+      const variance = n > 1 ? fsiqs.reduce((s, v) => s + Math.pow(v - mean, 2), 0) / (n - 1) : 0;
+      const sd = Math.sqrt(variance);
+
+      $('grp-mean').textContent = mean.toFixed(1);
+      $('grp-median').textContent = `Mediana: ${median.toFixed(1)}`;
+      $('grp-sd').textContent = n > 1 ? sd.toFixed(1) : '0.0';
+      $('grp-range').textContent = `${fsiqs[0]} – ${fsiqs[n - 1]}`;
+
+      // Table
+      const tbody = $('grp-table-body');
+      tbody.innerHTML = '';
+      list.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50';
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-bold text-slate-900">${escapeHtml(p.name)}</td>
+          <td class="py-3 px-3 text-slate-600">${p.ageGroup}</td>
+          <td class="py-3 px-3 text-right font-extrabold text-blue-600">${p.fsiq}</td>
+          <td class="py-3 px-3 text-right font-semibold text-slate-700">${p.gai}</td>
+          <td class="py-3 px-3 text-right text-slate-600">${p.percentile.toFixed(1)}%</td>
+          <td class="py-3 px-3 text-right text-slate-700">${p.icvScore}</td>
+          <td class="py-3 px-3 text-right text-slate-700">${p.irpScore}</td>
+          <td class="py-3 px-3 text-right text-slate-700">${p.imtScore}</td>
+          <td class="py-3 px-3 text-right text-slate-700">${p.ivpScore}</td>
+          <td class="py-3 px-4 text-xs font-semibold text-slate-700">${p.wechslerClass}</td>
+          <td class="py-3 px-4 text-right no-print space-x-2">
+            <button type="button" class="btn-view-prof text-blue-600 hover:underline font-semibold cursor-pointer">Ver</button>
+            <button type="button" class="btn-del-prof text-rose-600 hover:underline font-semibold cursor-pointer">Borrar</button>
+          </td>
+        `;
+        tr.querySelector('.btn-view-prof').addEventListener('click', () => displayProfileResults(p.id, 'individual'));
+        tr.querySelector('.btn-del-prof').addEventListener('click', () => {
+          state.profiles = state.profiles.filter(x => x.id !== p.id);
+          saveProfiles();
+          renderWelcomeProfiles();
+          renderGroupDashboard();
+        });
+        tbody.appendChild(tr);
+      });
+
+      // Group Chart
+      if (typeof Chart !== "undefined") {
+      if (state.groupChart) state.groupChart.destroy();
+      state.groupChart = new Chart($('chart-group'), {
+        type: 'bar',
+        data: {
+          labels: list.map(p => p.name),
+          datasets: [
+            { label: 'CI Total', data: list.map(p => p.fsiq), backgroundColor: '#1e293b', borderRadius: 6 },
+            { label: 'ICV (Verbal)', data: list.map(p => p.icvScore), backgroundColor: '#2563eb', borderRadius: 6 },
+            { label: 'IRP (Perceptivo)', data: list.map(p => p.irpScore), backgroundColor: '#4f46e5', borderRadius: 6 },
+            { label: 'IMT (Memoria)', data: list.map(p => p.imtScore), backgroundColor: '#d97706', borderRadius: 6 },
+            { label: 'IVP (Velocidad)', data: list.map(p => p.ivpScore), backgroundColor: '#059669', borderRadius: 6 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { min: 50, max: 150, grid: { color: '#f1f5f9' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+      }
+    }
+
+    // Export CSV
+    $('btn-export-csv').addEventListener('click', () => {
+      if (state.profiles.length === 0) return;
+      const headers = ['Participante', 'Edad', 'CI_Total', 'ICG', 'Percentil', 'Clasificacion_Wechsler', 'Grado_Raven', 'ICV', 'IRP', 'IMT', 'IVP', 'Fecha'];
+      const rows = state.profiles.map(p => [
+        `"${String(p.name).replace(/"/g, '""')}"`,
+        p.ageGroup, p.fsiq, p.gai, p.percentile, `"${p.wechslerClass}"`, `"${p.ravenGrade}"`,
+        p.icvScore, p.irpScore, p.imtScore, p.ivpScore, p.timestamp
+      ].join(','));
+      const csvContent = [headers.join(','), ...rows].join('\n');
+      const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'evaluacion_grupal_ci.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    $('btn-clear-group').addEventListener('click', () => {
+      $('clear-confirm-bar').classList.remove('hidden');
+    });
+    $('btn-cancel-clear').addEventListener('click', () => {
+      $('clear-confirm-bar').classList.add('hidden');
+    });
+    $('btn-confirm-clear').addEventListener('click', () => {
+      state.profiles = [];
+      saveProfiles();
+      $('clear-confirm-bar').classList.add('hidden');
+      renderWelcomeProfiles();
+      showScreen('screen-welcome');
+    });
+
+    $('btn-toggle-solutions').addEventListener('click', () => {
+      const sc = $('solutions-container');
+      const hidden = sc.classList.toggle('hidden');
+      $('btn-toggle-solutions').textContent = hidden ? 'Mostrar Solucionario' : 'Ocultar Solucionario';
+    });
+
+    $('btn-print-report').addEventListener('click', () => window.print());
+
+    function goToNewParticipant() {
+      clearTimers();
+      $('participant-name').value = '';
+      showScreen('screen-welcome');
+    }
+
+    $('btn-restart-test').addEventListener('click', goToNewParticipant);
+    $('btn-new-participant').addEventListener('click', goToNewParticipant);
+
+    // Initialize saved profiles on load
+    loadProfiles();
+  </script>
+</body>
+</html>
